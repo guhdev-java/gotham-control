@@ -12,6 +12,14 @@ Batman, Gotham, Arkham, WayneTech and related names, characters and visual refer
 
 Images and references used here are for fan-made educational experimentation only. If you own any asset used in this project and want it removed, please open an issue or contact the repository owner.
 
+## Screenshots
+
+![Dashboard](images/Captura_de_tela_20260707_193513.png)
+![Arkham and Missions](images/Captura_de_tela_20260707_193530.png)
+![WayneTech and Terminal](images/Captura_de_tela_20260707_193544.png)
+![Gotham Map and Profile](images/Captura_de_tela_20260707_193554.png)
+![Logs and Villain Detail](images/Captura_de_tela_20260707_193600.png)
+
 ## Features
 
 - Noir Gotham visual theme with rain, scanlines and cinematic background.
