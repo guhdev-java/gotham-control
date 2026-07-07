@@ -1,9 +1,15 @@
 import { VillainCard } from "../components/VillainCard";
-import { villains } from "../data/villains";
+import { useGotham } from "../state/useGotham";
 
 import "../styles/arkham.css";
 
-export function Arkham() {
+type ArkhamProps = {
+  onOpenVillain: (villainName: string) => void;
+};
+
+export function Arkham({ onOpenVillain }: ArkhamProps) {
+  const { villains } = useGotham();
+
   return (
     <main className="arkham">
       <header className="arkham-header">
@@ -17,7 +23,7 @@ export function Arkham() {
 
       <section className="villains-grid">
         {villains.map((villain) => (
-          <VillainCard key={villain.id} villain={villain} />
+          <VillainCard key={villain.id} villain={villain} onOpen={() => onOpenVillain(villain.name)} />
         ))}
       </section>
     </main>

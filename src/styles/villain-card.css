@@ -17,6 +17,10 @@
   will-change: transform;
 }
 
+.villain-card[role="button"] {
+  cursor: pointer;
+}
+
 .villain-card::before {
   content: "";
   position: absolute;

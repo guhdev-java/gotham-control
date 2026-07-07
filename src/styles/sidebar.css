@@ -63,11 +63,41 @@
   transform: translateX(4px);
 }
 
+.sidebar button:focus-visible,
+.back-button:focus-visible,
+.villain-dossier button:focus-visible,
+.terminal-input input:focus-visible,
+.villain-card:focus-visible {
+  outline: 2px solid rgba(214, 179, 90, 0.58);
+  outline-offset: 3px;
+}
+
 .sidebar small {
   color: var(--success);
   letter-spacing: 3px;
   text-transform: uppercase;
   opacity: 0.78;
+}
+
+.effects-toggle {
+  margin-bottom: 10px;
+}
+
+.danger-toggle {
+  border-color: rgba(163, 58, 50, 0.32) !important;
+  color: #c46a60 !important;
+  background: rgba(163, 58, 50, 0.06) !important;
+}
+
+.fan-disclaimer {
+  margin-top: 8px;
+  margin-bottom: 18px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.5;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  opacity: 0.68;
 }
 
 .sidebar button.active {

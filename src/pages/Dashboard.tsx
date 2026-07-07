@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 
-import { villains } from "../data/villains";
-import { gadgets } from "../data/gadgets";
-import { missions } from "../data/missions";
+import { useGotham } from "../state/useGotham";
 
 import "../styles/dashboard.css";
 
 export function Dashboard() {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const { villains, gadgets, missions } = useGotham();
 
   const escapedVillains = villains.filter(
     (villain) => villain.status === "ESCAPED"
@@ -21,8 +20,9 @@ export function Dashboard() {
     (gadget) => gadget.status === "AVAILABLE"
   ).length;
 
-  const cityThreatLevel = Math.round(
-    missions.reduce((total, mission) => total + mission.riskLevel, 0) / missions.length
+  const cityThreatLevel = Math.min(
+    100,
+    Math.round(missions.reduce((total, mission) => total + mission.riskLevel, 0) / missions.length + escapedVillains * 8)
   );
 
   const criticalMission = missions.reduce((highestRisk, mission) =>

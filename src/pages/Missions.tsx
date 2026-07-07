@@ -1,9 +1,11 @@
 import { MissionCard } from "../components/MissionCard";
-import { missions } from "../data/missions";
+import { useGotham } from "../state/useGotham";
 
 import "../styles/missions.css";
 
 export function Missions() {
+  const { missions } = useGotham();
+
   return (
     <main className="missions">
       <header className="missions-header">

@@ -5,13 +5,26 @@ import "../styles/villain-card.css";
 
 type VillainCardProps = {
   villain: Villain;
+  onOpen?: () => void;
 };
 
-export function VillainCard({ villain }: VillainCardProps) {
+export function VillainCard({ villain, onOpen }: VillainCardProps) {
   const tiltCard = useTiltCard();
 
   return (
-    <article className="villain-card" {...tiltCard}>
+    <article
+      className="villain-card"
+      {...tiltCard}
+      onClick={onOpen}
+      onKeyDown={(event) => {
+        if ((event.key === "Enter" || event.key === " ") && onOpen) {
+          event.preventDefault();
+          onOpen();
+        }
+      }}
+      role={onOpen ? "button" : undefined}
+      tabIndex={onOpen ? 0 : undefined}
+    >
       <div className="villain-card-image">
         <img src={villain.image} alt={`${villain.name} surveillance profile`} />
       </div>

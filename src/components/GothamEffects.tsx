@@ -11,7 +11,15 @@ const rainDrops = Array.from({ length: 80 }, () => ({
   "--drift": `${-28 - Math.random() * 52}px`,
 }));
 
-export function GothamEffects() {
+type GothamEffectsProps = {
+  enabled: boolean;
+};
+
+export function GothamEffects({ enabled }: GothamEffectsProps) {
+  if (!enabled) {
+    return null;
+  }
+
   return (
     <>
       <div className="rain">

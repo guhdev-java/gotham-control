@@ -1,9 +1,11 @@
 import { GadgetCard } from "../components/GadgetCard";
-import { gadgets } from "../data/gadgets";
+import { useGotham } from "../state/useGotham";
 
 import "../styles/waynetech.css";
 
 export function WayneTech() {
+  const { gadgets } = useGotham();
+
   return (
     <main className="waynetech">
       <header className="waynetech-header">

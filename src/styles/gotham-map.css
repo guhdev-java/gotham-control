@@ -1,0 +1,308 @@
+.gotham-map-page {
+  flex: 1;
+  min-height: 100vh;
+  padding: 46px;
+  color: var(--text);
+}
+
+.map-header,
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.map-header h1,
+.profile-header h1 {
+  margin-bottom: 8px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+}
+
+.map-header p,
+.profile-header p,
+.map-intel p {
+  color: var(--muted);
+}
+
+.map-header strong {
+  height: fit-content;
+  padding: 10px 14px;
+  border: 1px solid rgba(214, 179, 90, 0.34);
+  color: var(--signal);
+  background: rgba(214, 179, 90, 0.07);
+}
+
+.map-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 24px;
+}
+
+.map-panel,
+.map-intel article {
+  border: 1px solid var(--panel-border);
+  background:
+    linear-gradient(135deg, rgba(214, 179, 90, 0.035), transparent 48%),
+    var(--panel-soft);
+  box-shadow: 0 18px 58px rgba(0, 0, 0, 0.36);
+}
+
+.map-panel {
+  position: relative;
+  overflow: hidden;
+  padding: 22px;
+}
+
+.map-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 45% 40%, transparent 42%, rgba(0, 0, 0, 0.34)),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012), rgba(255, 255, 255, 0.012) 1px, transparent 1px, transparent 6px);
+  z-index: 1;
+}
+
+.map-panel > * {
+  position: relative;
+  z-index: 2;
+}
+
+.map-toolbar,
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  letter-spacing: 1.7px;
+  text-transform: uppercase;
+}
+
+.map-toolbar {
+  margin-bottom: 16px;
+}
+
+.map-legend {
+  margin-top: 16px;
+  justify-content: flex-start;
+}
+
+.map-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.map-legend i {
+  width: 9px;
+  height: 9px;
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.legend-mission {
+  background: #8ea97e;
+}
+
+.legend-villain {
+  background: #c46a60;
+}
+
+.legend-district {
+  background: var(--signal);
+}
+
+.map-panel svg {
+  width: 100%;
+  min-height: 560px;
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.map-base {
+  fill: rgba(6, 8, 9, 0.82);
+}
+
+#city-grid path {
+  fill: none;
+  stroke: rgba(95, 127, 146, 0.09);
+  stroke-width: 1;
+}
+
+.map-grid {
+  opacity: 0.62;
+}
+
+.map-water {
+  fill: rgba(36, 53, 61, 0.42);
+}
+
+.map-shore {
+  fill: none;
+  stroke: rgba(139, 164, 180, 0.28);
+  stroke-width: 2;
+  stroke-dasharray: 8 10;
+}
+
+.map-road,
+.map-bridge {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.map-road {
+  stroke: rgba(214, 179, 90, 0.16);
+  stroke-width: 2;
+  stroke-dasharray: 10 12;
+}
+
+.map-bridge {
+  stroke: rgba(139, 164, 180, 0.24);
+  stroke-width: 5;
+  stroke-dasharray: 14 8;
+}
+
+.map-district-button {
+  cursor: pointer;
+  outline: none;
+}
+
+.district {
+  fill: rgba(12, 14, 17, 0.72);
+  stroke: rgba(214, 179, 90, 0.2);
+  stroke-width: 1.4;
+  transition: fill 0.2s ease, stroke 0.2s ease, filter 0.2s ease;
+}
+
+.district.active,
+.map-district-button:hover .district,
+.map-district-button:focus-visible .district {
+  fill: rgba(214, 179, 90, 0.105);
+  stroke: rgba(214, 179, 90, 0.62);
+  filter: url(#soft-glow);
+}
+
+.map-panel text {
+  fill: var(--muted-strong);
+  font: 14px "Courier New", monospace;
+  letter-spacing: 1px;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+
+.map-pin-group {
+  filter: url(#soft-glow);
+}
+
+.mission-pin,
+.villain-pin {
+  animation: mapPinPulse 1.8s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.mission-pin {
+  fill: #8ea97e;
+}
+
+.villain-pin {
+  fill: #c46a60;
+}
+
+.ping {
+  opacity: 0.18;
+  fill: none;
+  stroke-width: 1.4;
+}
+
+.mission-pin.ping {
+  stroke: #8ea97e;
+}
+
+.villain-pin.ping {
+  stroke: #c46a60;
+}
+
+.map-compass circle {
+  fill: rgba(0, 0, 0, 0.25);
+  stroke: rgba(214, 179, 90, 0.28);
+}
+
+.map-compass path {
+  fill: rgba(214, 179, 90, 0.42);
+}
+
+.map-intel {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.map-intel h2 {
+  color: var(--muted);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.map-intel article {
+  padding: 22px;
+}
+
+.map-intel span {
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.map-intel strong {
+  display: block;
+  margin: 12px 0;
+  color: var(--signal);
+  font-size: 2rem;
+}
+
+@keyframes mapPinPulse {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.16);
+  }
+}
+
+@media (max-width: 1100px) {
+  .map-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .gotham-map-page {
+    padding: 28px 18px;
+  }
+
+  .map-header {
+    display: block;
+  }
+
+  .map-header strong {
+    display: inline-block;
+    margin-top: 18px;
+  }
+
+  .map-panel {
+    padding: 14px;
+  }
+
+  .map-panel svg {
+    min-height: 420px;
+  }
+}
