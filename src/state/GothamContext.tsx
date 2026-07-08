@@ -33,15 +33,41 @@ function createLog(type: EventLog["type"], message: string, timestamp: string): 
   };
 }
 
+function isGothamState(value: unknown): value is GothamState {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const state = value as Partial<GothamState>;
+
+  return (
+    Array.isArray(state.villains) &&
+    state.villains.length > 0 &&
+    Array.isArray(state.missions) &&
+    state.missions.length > 0 &&
+    Array.isArray(state.gadgets) &&
+    state.gadgets.length > 0 &&
+    Array.isArray(state.logs)
+  );
+}
+
 function loadState(): GothamState {
-  const savedState = localStorage.getItem(STORAGE_KEY);
+  let savedState: string | null;
+
+  try {
+    savedState = localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return initialState;
+  }
 
   if (!savedState) {
     return initialState;
   }
 
   try {
-    return JSON.parse(savedState) as GothamState;
+    const parsedState: unknown = JSON.parse(savedState);
+
+    return isGothamState(parsedState) ? parsedState : initialState;
   } catch {
     return initialState;
   }
@@ -139,7 +165,11 @@ export function GothamProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(gothamReducer, undefined, loadState);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      // The app remains usable when browser storage is unavailable.
+    }
   }, [state]);
 
   return (

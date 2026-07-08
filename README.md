@@ -2,7 +2,7 @@
 
 A fan-made Batman-inspired tactical control interface built with React, TypeScript and Vite.
 
-The project simulates a WayneTech/Batcomputer-style dashboard with Gotham surveillance, Arkham records, active missions, tactical equipment and an interactive terminal.
+The project simulates a WayneTech/Batcomputer-style dashboard with Gotham surveillance, Arkham records, active missions, tactical equipment, a custom interactive city map and an interactive terminal.
 
 ## Fan Project Disclaimer
 
@@ -28,7 +28,9 @@ Images and references used here are for fan-made educational experimentation onl
 - Villain, mission and gadget cards using local images and typed data.
 - Interactive Bat Terminal with commands backed by real project data.
 - Local in-memory state with persistence via localStorage.
-- Interactive Gotham district map and Batman profile file.
+- Leaflet-powered custom Gotham district map with local SVG cartography, tactical markers and district intel.
+- Batman profile file.
+- Smooth page transitions, animated HUD effects, interactive card tilt and responsive controls.
 - Responsive layout for desktop and mobile.
 
 ## Commands
@@ -67,6 +69,7 @@ clear
 - React 19
 - TypeScript
 - Vite
+- Leaflet
 - ESLint
 - CSS modules by feature/style file
 
@@ -80,8 +83,19 @@ src/styles      Theme and page/component CSS
 src/types       Domain TypeScript models
 public/cards    Local card images
 public/backgrounds Local background images
+public/maps     Custom Gotham map overlays
 public/profile  Local profile images
 ```
+
+## Map System
+
+The Gotham map uses Leaflet with `CRS.Simple` and a local SVG overlay at:
+
+```text
+public/maps/gotham-custom-map.svg
+```
+
+No Google Maps API key or external map service is required. Large generated 3D model exports should stay out of git; see `.gitignore`.
 
 ## License / Usage
 

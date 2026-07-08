@@ -18,6 +18,7 @@
   gap: 24px;
 
   margin-bottom: 32px;
+  animation: headerDriftIn 0.55s var(--ease-snap) both;
 }
 
 .dashboard-header h1 {
@@ -39,6 +40,8 @@
   border: 1px solid rgba(102, 138, 91, 0.32);
   color: #8ea97e;
   background: rgba(102, 138, 91, 0.07);
+  box-shadow: inset 0 0 18px rgba(102, 138, 91, 0.035);
+  animation: onlinePulse 2.8s ease-in-out infinite;
 }
 
 .dashboard-content {
@@ -48,6 +51,8 @@
 }
 
 .radar-panel {
+  position: relative;
+  overflow: hidden;
   padding: 24px;
 
   border: 1px solid rgba(102, 138, 91, 0.24);
@@ -56,6 +61,27 @@
     var(--panel);
 
   box-shadow: 0 22px 68px rgba(0, 0, 0, 0.48), inset 0 0 48px rgba(102, 138, 91, 0.02);
+  animation: panelRise 0.58s var(--ease-snap) both;
+}
+
+.radar-panel::before,
+.command-grid article::before,
+.status-grid article::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 28%, rgba(255, 255, 255, 0.035), transparent 42%);
+  opacity: 0;
+  transform: translateX(-80%);
+  transition: opacity 0.24s var(--ease-fluid), transform 0.7s var(--ease-snap);
+}
+
+.radar-panel:hover::before,
+.command-grid article:hover::before,
+.status-grid article:hover::before {
+  opacity: 1;
+  transform: translateX(80%);
 }
 
 .radar-frame {
@@ -328,6 +354,8 @@
 }
 
 .status-grid article {
+  position: relative;
+  overflow: hidden;
   padding: 24px;
 
   border: 1px solid var(--panel-border);
@@ -336,7 +364,8 @@
     var(--panel-soft);
 
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.34);
-  transition: 0.2s ease;
+  animation: panelRise 0.58s var(--ease-snap) both;
+  transition: transform 0.22s var(--ease-fluid), border-color 0.22s ease, box-shadow 0.22s ease;
 }
 
 .status-grid article:hover {
@@ -356,6 +385,7 @@
 .status-grid strong {
   color: var(--signal);
   font-size: 2rem;
+  text-shadow: 0 0 18px rgba(214, 179, 90, 0.16);
 }
 
 .command-grid {
@@ -365,11 +395,21 @@
 }
 
 .command-grid article {
+  position: relative;
+  overflow: hidden;
   border: 1px solid var(--panel-border);
   background:
     linear-gradient(135deg, rgba(214, 179, 90, 0.038), transparent),
     var(--panel-soft);
   box-shadow: 0 18px 58px rgba(0, 0, 0, 0.36);
+  animation: panelRise 0.58s var(--ease-snap) both;
+  transition: transform 0.22s var(--ease-fluid), border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.command-grid article:hover {
+  transform: translateY(-3px);
+  border-color: rgba(214, 179, 90, 0.28);
+  box-shadow: 0 22px 62px rgba(0, 0, 0, 0.46), 0 0 18px rgba(214, 179, 90, 0.045);
 }
 
 .threat-panel,
@@ -426,6 +466,8 @@
   height: 100%;
   background: linear-gradient(90deg, #668a5b, var(--signal), #9b4d3e);
   box-shadow: 0 0 18px rgba(214, 179, 90, 0.24);
+  background-size: 180% 100%;
+  animation: barFlow 1.8s linear infinite;
 }
 
 .priority-panel span {
@@ -457,6 +499,7 @@
   border-radius: 50%;
   background: var(--signal);
   box-shadow: 0 0 12px rgba(214, 179, 90, 0.34);
+  animation: feedDot 2.4s ease-in-out infinite;
 }
 
 .priority-target-panel p {
@@ -529,6 +572,44 @@
   height: 100%;
   background: linear-gradient(90deg, #73322c, #c46a60, var(--signal));
   box-shadow: 0 0 16px rgba(163, 58, 50, 0.28);
+  background-size: 180% 100%;
+  animation: barFlow 1.8s linear infinite;
+}
+
+.status-grid article:nth-child(2) {
+  animation-delay: 0.04s;
+}
+
+.status-grid article:nth-child(3) {
+  animation-delay: 0.08s;
+}
+
+.status-grid article:nth-child(4) {
+  animation-delay: 0.12s;
+}
+
+.status-grid article:nth-child(5) {
+  animation-delay: 0.16s;
+}
+
+.status-grid article:nth-child(6) {
+  animation-delay: 0.2s;
+}
+
+.command-grid article:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.command-grid article:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.command-grid article:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.command-grid article:nth-child(4) {
+  animation-delay: 0.25s;
 }
 
 @media (max-width: 1100px) {
@@ -571,6 +652,66 @@
 
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes headerDriftIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -10px, 0);
+    filter: blur(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+}
+
+@keyframes panelRise {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    clip-path: inset(10% 0 0 0);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    clip-path: inset(0);
+  }
+}
+
+@keyframes onlinePulse {
+  0%, 100% {
+    box-shadow: inset 0 0 18px rgba(102, 138, 91, 0.035), 0 0 0 rgba(102, 138, 91, 0);
+  }
+
+  50% {
+    box-shadow: inset 0 0 24px rgba(102, 138, 91, 0.08), 0 0 18px rgba(102, 138, 91, 0.11);
+  }
+}
+
+@keyframes feedDot {
+  0%, 100% {
+    opacity: 0.62;
+    transform: scale(0.86);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+
+@keyframes barFlow {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 180% 0;
   }
 }
 

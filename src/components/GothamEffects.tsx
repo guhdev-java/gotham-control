@@ -31,6 +31,7 @@ export function GothamEffects({ enabled }: GothamEffectsProps) {
         ))}
       </div>
 
+      <div className="ambient-sweep" />
       <div className="scanlines" />
     </>
   );

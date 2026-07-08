@@ -18,6 +18,12 @@ dist-ssr
 .vite
 coverage
 
+# Generated or exported heavy map/model assets
+public/models/*.glb
+public/models/*.gltf
+public/models/*.bin
+public/models/textures/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

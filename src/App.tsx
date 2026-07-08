@@ -30,6 +30,7 @@ const pageRoutes: Record<Page, string> = {
 };
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+const basePathFull = import.meta.env.BASE_URL;
 
 function toAppPath(path: string) {
   return `${basePath}${path}` || path;
@@ -70,13 +71,27 @@ function getRouteFromPath(pathname: string): AppRoute {
 }
 
 function loadStoredBoolean(key: string, fallback: boolean) {
-  const storedValue = localStorage.getItem(key);
+  let storedValue: string | null;
+
+  try {
+    storedValue = localStorage.getItem(key);
+  } catch {
+    return fallback;
+  }
 
   if (storedValue === null) {
     return fallback;
   }
 
   return storedValue === "true";
+}
+
+function storeBoolean(key: string, value: boolean) {
+  try {
+    localStorage.setItem(key, String(value));
+  } catch {
+    // Storage can be unavailable in private or restricted browsing contexts.
+  }
 }
 
 function App() {
@@ -87,8 +102,6 @@ function App() {
   );
   const [soundEnabled, setSoundEnabled] = useState(() => loadStoredBoolean("gotham-sound-enabled", true));
   const activePage = route.page;
-
-  const basePathFull = import.meta.env.BASE_URL;
 
   useEffect(() => {
     if (window.location.pathname === basePathFull || window.location.pathname === basePathFull.replace(/\/$/, "")) {
@@ -105,11 +118,11 @@ function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("gotham-effects-enabled", String(effectsEnabled));
+    storeBoolean("gotham-effects-enabled", effectsEnabled);
   }, [effectsEnabled]);
 
   useEffect(() => {
-    localStorage.setItem("gotham-sound-enabled", String(soundEnabled));
+    storeBoolean("gotham-sound-enabled", soundEnabled);
   }, [soundEnabled]);
 
   function handleChangePage(page: Page) {

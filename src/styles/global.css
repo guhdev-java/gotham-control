@@ -13,6 +13,8 @@
   --success: #668a5b;
   --tech: #5f7f92;
   --shadow-heavy: 0 28px 90px rgba(0, 0, 0, 0.62);
+  --ease-fluid: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * {
@@ -51,6 +53,7 @@ body::before {
     radial-gradient(circle at 72% 9%, rgba(214, 179, 90, 0.24), transparent 14rem),
     radial-gradient(circle at 35% 76%, rgba(95, 127, 146, 0.08), transparent 26rem);
   mix-blend-mode: screen;
+  animation: cityGlowDrift 14s var(--ease-fluid) infinite alternate;
 }
 
 body::after {
@@ -62,6 +65,7 @@ body::after {
 
 button {
   font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button,
@@ -83,12 +87,15 @@ input {
     linear-gradient(90deg, rgba(0, 0, 0, 0.48), transparent 28rem),
     radial-gradient(circle at 72% 9%, rgba(214, 179, 90, 0.05), transparent 30rem),
     linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.42));
+  animation: layoutReveal 0.7s var(--ease-snap) both;
 }
 
 .page-transition {
   flex: 1;
   min-width: 0;
-  animation: pageEnter 0.28s ease-out both;
+  animation: pageEnter 0.42s var(--ease-snap) both;
+  transform-origin: 50% 24px;
+  will-change: opacity, transform, filter;
 }
 
 .panel {
@@ -109,14 +116,38 @@ input {
 @keyframes pageEnter {
   from {
     opacity: 0;
-    transform: translateY(8px);
-    filter: blur(2px);
+    transform: translate3d(0, 14px, 0) scale(0.992);
+    filter: blur(7px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0) scale(1);
     filter: blur(0);
+  }
+}
+
+@keyframes layoutReveal {
+  from {
+    opacity: 0;
+    filter: saturate(0.72) brightness(0.74);
+  }
+
+  to {
+    opacity: 1;
+    filter: saturate(1) brightness(1);
+  }
+}
+
+@keyframes cityGlowDrift {
+  from {
+    opacity: 0.62;
+    transform: translate3d(-1.4%, -0.8%, 0) scale(1);
+  }
+
+  to {
+    opacity: 0.95;
+    transform: translate3d(1.6%, 1%, 0) scale(1.025);
   }
 }
 
