@@ -1,6 +1,10 @@
 .mission-card {
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
   --tilt-x: 0deg;
   --tilt-y: 0deg;
   --glare-x: 50%;
@@ -117,6 +121,7 @@
   display: flex;
   justify-content: space-between;
   gap: 16px;
+  min-width: 0;
   padding: 22px 24px 0;
   margin-bottom: 20px;
   transform: translateZ(8px);
@@ -125,6 +130,7 @@
 .mission-card h2 {
   margin-bottom: 4px;
   color: var(--text);
+  overflow-wrap: anywhere;
 }
 
 .mission-card-header span {
@@ -174,10 +180,24 @@
 .mission-meta {
   display: flex;
   justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
   padding: 0 24px;
   margin-bottom: 18px;
   color: var(--muted);
   transform: translateZ(4px);
+}
+
+.mission-meta span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mission-meta strong {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .mission-status.active {
@@ -193,6 +213,7 @@
 }
 
 .mission-progress {
+  margin-top: auto;
   padding: 0 24px 24px;
   transform: translateZ(6px);
 }

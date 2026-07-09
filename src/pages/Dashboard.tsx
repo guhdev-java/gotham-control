@@ -14,10 +14,13 @@ type DashboardProps = {
 export function Dashboard({ onNavigate, onOpenVillain }: DashboardProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { operatorName, villains, gadgets, missions, logs } = useNocturne();
+  const openMissions = missions.filter((mission) => mission.status !== "COMPLETED");
+  const openMissionCount = openMissions.length;
 
   const escapedVillains = villains.filter(
     (villain) => villain.status === "ESCAPED"
   ).length;
+  const escapedTargets = villains.filter((villain) => villain.status === "ESCAPED");
 
   const activeMissions = missions.filter(
     (mission) => mission.status === "ACTIVE"
@@ -26,18 +29,45 @@ export function Dashboard({ onNavigate, onOpenVillain }: DashboardProps) {
   const availableGadgets = gadgets.filter(
     (gadget) => gadget.status === "AVAILABLE"
   ).length;
+  const deployedGadgets = gadgets.filter(
+    (gadget) => gadget.status === "DEPLOYED"
+  ).length;
+  const gravemereMissions = missions.filter(
+    (mission) =>
+      mission.district.toLowerCase().includes("gravemere") &&
+      mission.status !== "COMPLETED"
+  );
+  const criticalMissions = missions.filter(
+    (mission) =>
+      mission.status !== "COMPLETED" &&
+      (mission.priority === "CRITICAL" || mission.riskLevel >= 80)
+  );
 
+  const averageMissionRisk = openMissionCount
+    ? openMissions.reduce((total, mission) => total + mission.riskLevel, 0) / openMissionCount
+    : 0;
   const cityThreatLevel = Math.min(
     100,
-    Math.round(missions.reduce((total, mission) => total + mission.riskLevel, 0) / missions.length + escapedVillains * 8)
+    Math.round(averageMissionRisk + escapedVillains * 8)
   );
 
-  const criticalMission = missions.reduce((highestRisk, mission) =>
-    mission.riskLevel > highestRisk.riskLevel ? mission : highestRisk
-  );
+  const criticalMission = openMissions.length
+    ? openMissions.reduce((highestRisk, mission) =>
+        mission.riskLevel > highestRisk.riskLevel ? mission : highestRisk
+      )
+    : null;
 
-  const mostWanted = villains.find((villain) => villain.status === "ESCAPED");
-  const targetConfidence = mostWanted?.dangerLevel === "EXTREME" ? 87 : 64;
+  const dangerWeights = { LOW: 42, MEDIUM: 58, HIGH: 72, EXTREME: 87 } as const;
+  const mostWanted = escapedTargets.length
+    ? escapedTargets.reduce((highestRisk, villain) =>
+        dangerWeights[villain.dangerLevel] > dangerWeights[highestRisk.dangerLevel]
+          ? villain
+          : highestRisk
+      )
+    : null;
+  const targetConfidence = mostWanted
+    ? Math.min(96, dangerWeights[mostWanted.dangerLevel] + (logs.length > 3 ? 4 : 0))
+    : 0;
   const targetInitials = mostWanted?.name
     .split(" ")
     .map((part) => part[0])
@@ -49,10 +79,42 @@ export function Dashboard({ onNavigate, onOpenVillain }: DashboardProps) {
     ? logs.slice(0, 4).map((log) => `${log.timestamp} / ${log.message}`)
     : [
         "Gravemere perimeter camera lost signal for 12 seconds.",
-        `${criticalMission.assignedUnit} reports movement near ${criticalMission.district}.`,
+        criticalMission
+          ? `${criticalMission.assignedUnit} reports movement near ${criticalMission.district}.`
+          : "No active mission telemetry in queue.",
         "Rain interference elevated across rooftop relay network.",
-        mostWanted ? `${mostWanted.name} profile flagged near ${mostWanted.lastLocation}.` : "No escaped target currently locked.",
+        mostWanted
+          ? `${mostWanted.name} profile flagged near ${mostWanted.lastLocation}.`
+          : "No escaped target file is available.",
       ];
+  const cityStatus = cityThreatLevel >= 75
+    ? "DANGER"
+    : cityThreatLevel >= 45
+      ? "ELEVATED"
+      : cityThreatLevel > 0
+        ? "WATCH"
+        : "STABLE";
+  const cityStatusReason = `Missions: ${activeMissions} active / Targets: ${escapedVillains} escaped`;
+  const averageMissionRiskLabel = `${Math.round(averageMissionRisk)}%`;
+  const gravemereStatus =
+    gravemereMissions.some((mission) => mission.riskLevel >= 80) || escapedVillains > 0
+      ? "BREACH"
+      : gravemereMissions.length > 0
+        ? "WATCH"
+        : "SEALED";
+  const gravemereReason = gravemereMissions.length
+    ? `Gravemere missions: ${gravemereMissions.length} active`
+    : "No active Gravemere mission";
+  const nightSignal = logs.length > 3
+    ? "ACTIVE"
+    : deployedGadgets > 0
+      ? "RELAY"
+      : "ONLINE";
+  const contactCount = Math.max(escapedVillains + criticalMissions.length, mostWanted ? 1 : 0);
+  const contactLabel = `${contactCount} contact${contactCount === 1 ? "" : "s"}`;
+  const priorityMissionLabel = criticalMission ? criticalMission.title : "Mission queue clear";
+  const priorityTargetLabel = mostWanted ? mostWanted.name : "No escaped target";
+  const logEntryLabel = `Logs: ${logs.length} ${logs.length === 1 ? "entry" : "entries"}`;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -69,26 +131,12 @@ export function Dashboard({ onNavigate, onOpenVillain }: DashboardProps) {
   });
   const hour = currentTime.getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-  function interactivePage(page: Page) {
-    return {
-      role: "button",
-      tabIndex: 0,
-      onClick: () => onNavigate?.(page),
-      onKeyDown: (event: React.KeyboardEvent) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onNavigate?.(page);
-        }
-      },
-    };
-  }
-
   return (
     <main className="dashboard">
       <header className="dashboard-header">
         <div>
           <h1>Nocturne Live Monitor</h1>
-          <p>{greeting}, {operatorName || "operator"}. Real-time tactical overview from the Sentinel console.</p>
+          <p>{greeting}, {operatorName || "operator"}. Tactical state across missions, targets, Aegis assets and city logs.</p>
         </div>
 
         <strong>{formattedTime}</strong>
@@ -111,55 +159,45 @@ export function Dashboard({ onNavigate, onOpenVillain }: DashboardProps) {
             </div>
 
             <div className="radar-readout">
-              <span>SECTOR 07</span>
+              <span>{criticalMission ? criticalMission.district.toUpperCase() : "CITYWIDE"}</span>
               <span>RAIN INTERFERENCE</span>
-              <span>3 CONTACTS</span>
+              <span>{contactLabel.toUpperCase()}</span>
             </div>
           </div>
 
           <h2>City Surveillance</h2>
-          <p>Low-visibility scan across central Nocturne and Gravemere perimeter.</p>
+          <p>{contactCount > 0 ? `${contactLabel} from escaped targets and high-risk missions.` : "No priority contacts currently plotted."}</p>
         </article>
 
         <div className="dashboard-mainframe">
-          <nav className="quick-actions" aria-label="Quick operational actions">
-            <button onClick={() => onNavigate?.("missions")}>Open priority operation <span>→</span></button>
-            <button onClick={() => mostWanted && onOpenVillain?.(mostWanted.name)} disabled={!mostWanted}>Track priority target <span>→</span></button>
-            <button onClick={() => onNavigate?.("aegis")}>Deploy Aegis asset <span>→</span></button>
+          <nav className="quick-actions" aria-label="Dashboard shortcuts">
+            <button onClick={() => onNavigate?.("missions")}>
+              <span>Mission queue</span>
+              <strong>{criticalMission ? "Review" : "Clear"}</strong>
+            </button>
+            <button onClick={() => mostWanted && onOpenVillain?.(mostWanted.name)} disabled={!mostWanted}>
+              <span>Priority target</span>
+              <strong>{mostWanted ? "Open file" : "Contained"}</strong>
+            </button>
+            <button onClick={() => onNavigate?.("aegis")}>
+              <span>Aegis inventory</span>
+              <strong>{availableGadgets} ready</strong>
+            </button>
           </nav>
-          <section className="status-grid">
-            <article {...interactivePage("dashboard")}>
-              <h2>CITY STATUS</h2>
-              <strong>DANGER</strong>
-            </article>
-
-            <article {...interactivePage("map")}>
-              <h2>NIGHT SIGNAL</h2>
-              <strong>ONLINE</strong>
-            </article>
-
-            <article {...interactivePage("gravemere")}>
-              <h2>ESCAPED VILLAINS</h2>
-              <strong>{escapedVillains}</strong>
-            </article>
-
-            <article {...interactivePage("missions")}>
-              <h2>ACTIVE MISSIONS</h2>
-              <strong>{activeMissions}</strong>
-            </article>
-
-            <article {...interactivePage("aegis")}>
-              <h2>AVAILABLE GADGETS</h2>
-              <strong>{availableGadgets}</strong>
-            </article>
-
-            <article {...interactivePage("map")}>
-              <h2>GRAVEMERE STATUS</h2>
-              <strong>BREACH</strong>
-            </article>
-          </section>
 
           <section className="command-grid">
+            <button
+              className="priority-panel actionable-panel panel-button"
+              type="button"
+              onClick={() => onNavigate?.("missions")}
+              aria-label={`${priorityMissionLabel}. ${criticalMission?.description ?? "No open mission requires escalation."}`}
+            >
+              <h2>PRIORITY MISSION</h2>
+              <strong>{criticalMission?.title ?? "Mission queue clear"}</strong>
+              <span>{criticalMission ? `${criticalMission.district} / ETA ${criticalMission.eta}` : "No open mission requires escalation"}</span>
+              <p>{criticalMission?.description ?? "Stand by for the next Nocturne signal."}</p>
+            </button>
+
             <article className="threat-panel">
               <div>
                 <h2>THREAT INDEX</h2>
@@ -169,31 +207,36 @@ export function Dashboard({ onNavigate, onOpenVillain }: DashboardProps) {
               <div className="threat-meter">
                 <div style={{ width: `${cityThreatLevel}%` }} />
               </div>
-              <svg className="threat-sparkline" viewBox="0 0 320 54" role="img" aria-label="Threat activity trend">
-                <polyline points={`0,46 48,38 92,42 136,24 180,31 226,14 270,22 320,${Math.max(5, 54 - cityThreatLevel / 2)}`} />
-              </svg>
 
-              <p>Calculated from active mission risk, Gravemere breach state and escaped target count.</p>
+              <div className="threat-breakdown" aria-label="Threat index breakdown">
+                <span>
+                  <small>Mission risk</small>
+                  <strong>{averageMissionRiskLabel}</strong>
+                </span>
+                <span>
+                  <small>Escaped targets</small>
+                  <strong>{escapedVillains}</strong>
+                </span>
+                <span>
+                  <small>Critical ops</small>
+                  <strong>{criticalMissions.length}</strong>
+                </span>
+                <span>
+                  <small>City state</small>
+                  <strong>{cityStatus}</strong>
+                </span>
+              </div>
+
+              <p>Average mission risk plus escaped target pressure. Higher values need mission review.</p>
             </article>
 
-            <article className="priority-panel actionable-panel" onClick={() => onNavigate?.("missions")}>
-              <h2>PRIORITY OPERATION</h2>
-              <strong>{criticalMission.title}</strong>
-              <span>{criticalMission.district} / ETA {criticalMission.eta}</span>
-              <p>{criticalMission.description}</p>
-            </article>
-
-            <article className="feed-panel">
-              <h2>INCIDENT FEED</h2>
-
-              <ul>
-                {incidentFeed.map((incident) => (
-                  <li key={incident}>{incident}</li>
-                ))}
-              </ul>
-            </article>
-
-            <article className="priority-target-panel actionable-panel" onClick={() => mostWanted && onOpenVillain?.(mostWanted.name)}>
+            <button
+              className="priority-target-panel actionable-panel panel-button"
+              type="button"
+              onClick={() => mostWanted && onOpenVillain?.(mostWanted.name)}
+              disabled={!mostWanted}
+              aria-label={mostWanted ? `Open target file: ${priorityTargetLabel}. Tracking confidence ${targetConfidence}%.` : "No escaped target file is available."}
+            >
               <h2>PRIORITY TARGET</h2>
 
               {mostWanted ? (
@@ -225,9 +268,57 @@ export function Dashboard({ onNavigate, onOpenVillain }: DashboardProps) {
                   <p>{mostWanted.threatNotes}</p>
                 </>
               ) : (
-                <p>No escaped target currently locked.</p>
+                <p>No escaped target file is available.</p>
               )}
+            </button>
+
+            <article className="feed-panel">
+              <h2>INCIDENT FEED</h2>
+
+              <ul>
+                {incidentFeed.map((incident) => (
+                  <li key={incident}>{incident}</li>
+                ))}
+              </ul>
             </article>
+          </section>
+
+          <section className="status-grid">
+            <button type="button" onClick={() => onNavigate?.("logs")} aria-label={`City status ${cityStatus}. ${cityStatusReason}. Open logs.`}>
+              <h2>CITY STATUS</h2>
+              <strong>{cityStatus}</strong>
+              <span>{cityStatusReason}</span>
+            </button>
+
+            <button type="button" onClick={() => onNavigate?.("map")} aria-label={`Map signal ${nightSignal}. Open map.`}>
+              <h2>MAP SIGNAL</h2>
+              <strong>{nightSignal}</strong>
+              <span>{logEntryLabel}</span>
+            </button>
+
+            <button type="button" onClick={() => onNavigate?.("gravemere")} aria-label={`${escapedVillains} escaped villains. Open Gravemere archive.`}>
+              <h2>ESCAPED VILLAINS</h2>
+              <strong>{escapedVillains}</strong>
+              <span>{mostWanted ? `Priority: ${mostWanted.name}` : "All targets contained"}</span>
+            </button>
+
+            <button type="button" onClick={() => onNavigate?.("missions")} aria-label={`${activeMissions} active missions. Open missions.`}>
+              <h2>ACTIVE MISSIONS</h2>
+              <strong>{activeMissions}</strong>
+              <span>High-risk missions: {criticalMissions.length}</span>
+            </button>
+
+            <button type="button" onClick={() => onNavigate?.("aegis")} aria-label={`${availableGadgets} available gadgets. Open Aegis Lab.`}>
+              <h2>AVAILABLE GADGETS</h2>
+              <strong>{availableGadgets}</strong>
+              <span>{deployedGadgets} deployed</span>
+            </button>
+
+            <button type="button" onClick={() => onNavigate?.("map")} aria-label={`Gravemere status ${gravemereStatus}. ${gravemereReason}. Open map.`}>
+              <h2>GRAVEMERE STATUS</h2>
+              <strong>{gravemereStatus}</strong>
+              <span>{gravemereReason}</span>
+            </button>
           </section>
         </div>
       </section>

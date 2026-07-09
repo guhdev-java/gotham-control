@@ -1,12 +1,20 @@
 .sidebar {
   width: 286px;
-  min-height: 100vh;
+  min-width: 286px;
+  max-width: 286px;
+  flex: 0 0 286px;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 
   position: sticky;
   top: 0;
   z-index: 5;
 
-  padding: 28px 22px;
+  padding: 24px 18px;
 
   background:
     linear-gradient(180deg, rgba(12, 14, 17, 0.98), rgba(4, 5, 6, 0.98)),
@@ -30,7 +38,7 @@
 
 .sidebar h2 {
   color: var(--text);
-  margin-bottom: 42px;
+  margin-bottom: 16px;
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 4px;
@@ -43,7 +51,8 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  flex: 1;
+  flex: 0 0 auto;
+  margin-bottom: 18px;
 }
 
 .sidebar button {
@@ -51,7 +60,9 @@
   overflow: hidden;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
 
   background: rgba(255, 255, 255, 0.015);
   border: 1px solid rgba(255, 255, 255, 0.055);
@@ -61,7 +72,7 @@
 
   text-align: left;
   min-height: 48px;
-  padding: 13px 14px;
+  padding: 13px 12px;
 
   cursor: pointer;
   letter-spacing: 2px;
@@ -78,16 +89,26 @@
   position: relative;
   z-index: 1;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sidebar nav button small {
+  flex: 0 0 auto;
   margin: 0 0 0 auto;
   color: var(--signal);
   font-size: 0.55rem;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
 }
 
 .palette-trigger kbd {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
   margin-left: auto;
+  white-space: nowrap;
 }
 
 .mobile-menu-toggle,
@@ -154,6 +175,11 @@
 }
 
 .effects-toggle {
+  margin-bottom: 10px;
+}
+
+.palette-trigger {
+  margin-top: 0;
   margin-bottom: 10px;
 }
 
@@ -260,7 +286,12 @@
     inset: 0 auto 0 0;
     z-index: 35;
     width: min(330px, 88vw);
-    min-height: 100vh;
+    min-width: 0;
+    max-width: min(330px, 88vw);
+    flex-basis: min(330px, 88vw);
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
     padding: 72px 18px 24px;
     border-right: 0;
     transform: translateX(-105%);

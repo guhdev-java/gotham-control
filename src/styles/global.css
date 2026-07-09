@@ -124,6 +124,8 @@ input {
 .page-transition {
   flex: 1;
   min-width: 0;
+  max-width: calc(100vw - 286px);
+  overflow-x: hidden;
   animation: pageEnter 0.52s var(--ease-snap) both;
   transform-origin: 50% 24px;
   will-change: opacity, transform, filter;
@@ -252,6 +254,7 @@ input {
   }
 
   .page-transition {
+    max-width: 100%;
     min-height: calc(100vh - 180px);
   }
 }

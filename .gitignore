@@ -32,6 +32,10 @@ coverage
 .wrangler
 .envrc
 
+# Local agent/session metadata
+.agents/
+.codex/
+
 # Test reports and generated screenshots
 playwright-report
 test-results

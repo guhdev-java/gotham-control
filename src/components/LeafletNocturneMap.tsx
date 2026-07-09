@@ -34,6 +34,7 @@ function toLeafletPoint(point: [number, number]): L.LatLngExpression {
 }
 
 function createMarkerIcon(type: "district" | "mission" | "villain", label: string, active = false) {
+  const isDistrict = type === "district";
   const content = document.createElement("div");
   const signal = document.createElement("span");
   const text = document.createElement("strong");
@@ -43,8 +44,8 @@ function createMarkerIcon(type: "district" | "mission" | "villain", label: strin
   return L.divIcon({
     className: `nocturne-leaflet-marker ${type} ${active ? "active" : ""}`,
     html: content,
-    iconSize: [120, 34],
-    iconAnchor: [14, 17],
+    iconSize: isDistrict ? [150, 34] : [28, 28],
+    iconAnchor: isDistrict ? [14, 17] : [14, 14],
   });
 }
 
@@ -82,16 +83,17 @@ export function LeafletNocturneMap({
       attributionControl: false,
       crs: L.CRS.Simple,
       maxBounds: mapBounds,
-      maxBoundsViscosity: 0.85,
+      maxBoundsViscosity: 1,
       minZoom: -1,
-      maxZoom: 2.5,
+      maxZoom: 1.5,
       zoomSnap: 0.25,
+      zoomDelta: 0.5,
       zoomControl: false,
+      scrollWheelZoom: false,
       preferCanvas: true,
     });
 
-    map.fitBounds(mapBounds);
-    map.setZoom(0);
+    map.fitBounds(mapBounds, { padding: [14, 14], animate: false });
 
     overlayRef.current = L.imageOverlay(imageUrl, mapBounds)
       .on("load", () => {
@@ -100,7 +102,7 @@ export function LeafletNocturneMap({
       .addTo(map);
     districtLayerRef.current = L.layerGroup().addTo(map);
     signalLayerRef.current = L.layerGroup().addTo(map);
-    L.control.zoom({ position: "bottomright" }).addTo(map);
+    L.control.zoom({ position: "bottomleft" }).addTo(map);
 
     mapRef.current = map;
     window.setTimeout(() => map.invalidateSize(), 0);
@@ -192,9 +194,11 @@ export function LeafletNocturneMap({
       return;
     }
 
-    map.flyTo(toLeafletPoint(activeDistrict.center), 0.45, {
+    map.fitBounds(activeDistrict.bounds, {
       animate: true,
-      duration: 0.75,
+      duration: 0.45,
+      padding: [42, 42],
+      maxZoom: 0.75,
     });
   }, [activeDistrictId, districts]);
 

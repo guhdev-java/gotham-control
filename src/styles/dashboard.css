@@ -40,14 +40,14 @@
   border: 1px solid rgba(102, 138, 91, 0.32);
   color: #8ea97e;
   background: rgba(102, 138, 91, 0.07);
-  box-shadow: inset 0 0 18px rgba(102, 138, 91, 0.035);
-  animation: onlinePulse 2.8s ease-in-out infinite;
+  box-shadow: inset 0 0 14px rgba(102, 138, 91, 0.03);
 }
 
 .dashboard-content {
   display: grid;
-  grid-template-columns: minmax(300px, 380px) 1fr;
-  gap: 24px;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  align-items: start;
+  gap: 32px;
 }
 
 .radar-panel {
@@ -57,16 +57,14 @@
 
   border: 1px solid rgba(102, 138, 91, 0.24);
   background:
-    linear-gradient(135deg, rgba(102, 138, 91, 0.07), transparent),
+    linear-gradient(135deg, rgba(102, 138, 91, 0.045), transparent),
     var(--panel);
 
-  box-shadow: 0 22px 68px rgba(0, 0, 0, 0.48), inset 0 0 48px rgba(102, 138, 91, 0.02);
+  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.42), inset 0 0 34px rgba(102, 138, 91, 0.016);
   animation: panelRise 0.58s var(--ease-snap) both;
 }
 
-.radar-panel::before,
-.command-grid article::before,
-.status-grid article::before {
+.radar-panel::before {
   content: "";
   position: absolute;
   inset: -38% -78%;
@@ -78,9 +76,7 @@
   transition: opacity 0.24s var(--ease-fluid), transform 0.7s var(--ease-snap);
 }
 
-.radar-panel:hover::before,
-.command-grid article:hover::before,
-.status-grid article:hover::before {
+.radar-panel:hover::before {
   opacity: 1;
   transform: translateX(22%) rotate(8deg);
 }
@@ -92,7 +88,7 @@
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent),
     rgba(0, 0, 0, 0.42);
-  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.32);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.28);
 }
 
 .radar-frame::before,
@@ -164,7 +160,7 @@
   background-size: 18px 18px, auto, auto, auto, auto, auto;
   box-shadow:
     inset 0 0 42px rgba(0, 0, 0, 0.78),
-    inset 0 0 28px rgba(102, 138, 91, 0.08),
+    inset 0 0 24px rgba(102, 138, 91, 0.055),
     0 0 28px rgba(0, 0, 0, 0.4);
 }
 
@@ -246,7 +242,7 @@
   background: none;
   mix-blend-mode: screen;
 
-  animation: radarSpin 6s linear infinite;
+  animation: radarSpin 10s linear infinite;
 }
 
 .radar-sweep::before {
@@ -257,8 +253,8 @@
   width: 46%;
   height: 1px;
   transform-origin: left center;
-  background: linear-gradient(90deg, rgba(102, 138, 91, 0.72), rgba(102, 138, 91, 0.18), transparent);
-  box-shadow: 0 0 14px rgba(102, 138, 91, 0.28);
+  background: linear-gradient(90deg, rgba(102, 138, 91, 0.56), rgba(102, 138, 91, 0.12), transparent);
+  box-shadow: 0 0 10px rgba(102, 138, 91, 0.2);
 }
 
 .radar-sweep::after {
@@ -271,8 +267,8 @@
   transform: translateY(-50%) rotate(-7deg);
   transform-origin: left center;
   background: linear-gradient(90deg, rgba(102, 138, 91, 0.12), transparent);
-  opacity: 0.4;
-  filter: blur(7px);
+  opacity: 0.26;
+  filter: blur(5px);
 }
 
 .radar-noise {
@@ -284,8 +280,7 @@
     radial-gradient(circle at 30% 22%, rgba(214, 179, 90, 0.08), transparent 2px),
     radial-gradient(circle at 68% 74%, rgba(102, 138, 91, 0.08), transparent 2px),
     radial-gradient(circle at 42% 61%, rgba(102, 138, 91, 0.07), transparent 1px);
-  opacity: 0.28;
-  animation: radarNoise 2.8s steps(4) infinite;
+  opacity: 0.18;
 }
 
 .radar-contact {
@@ -296,8 +291,8 @@
 
   border-radius: 50%;
   background: var(--signal);
-  box-shadow: 0 0 14px rgba(214, 179, 90, 0.55);
-  animation: contactPulse 2.6s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(214, 179, 90, 0.38);
+  animation: contactPulse 3.8s ease-in-out infinite;
 }
 
 .radar-contact::after {
@@ -306,7 +301,7 @@
   inset: -7px;
   border: 1px solid rgba(214, 179, 90, 0.22);
   border-radius: 50%;
-  animation: contactRing 2.6s ease-out infinite;
+  opacity: 0.26;
 }
 
 .contact-one {
@@ -344,14 +339,13 @@
 
 .status-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-
-  gap: 20px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .dashboard-mainframe {
   display: grid;
-  gap: 20px;
+  gap: 24px;
 }
 
 .quick-actions {
@@ -362,8 +356,10 @@
 
 .quick-actions button {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
+  min-width: 0;
   padding: 13px 15px;
   border: 1px solid var(--panel-border);
   color: var(--muted-strong);
@@ -373,79 +369,123 @@
   transition: border-color .2s, color .2s, background .2s;
 }
 .quick-actions button:hover { border-color: rgba(214,179,90,.4); color: var(--signal); background: rgba(214,179,90,.05); }
-.quick-actions button:disabled { opacity: .4; cursor: not-allowed; }
-.quick-actions span { color: var(--signal); }
-
-.status-grid article {
-  position: relative;
+.quick-actions button:disabled { opacity: .48; cursor: not-allowed; }
+.quick-actions span {
+  min-width: 0;
   overflow: hidden;
-  padding: 24px;
+  color: var(--muted-strong);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.quick-actions strong {
+  flex: 0 0 auto;
+  color: var(--signal);
+  font-size: 0.74rem;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.status-grid button {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  min-height: 128px;
+  padding: 16px;
 
   border: 1px solid var(--panel-border);
   background:
-    linear-gradient(135deg, rgba(214, 179, 90, 0.045), transparent),
+    linear-gradient(135deg, rgba(214, 179, 90, 0.028), transparent),
     var(--panel-soft);
 
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.34);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.24);
+  color: inherit;
+  text-align: left;
   animation: panelRise 0.58s var(--ease-snap) both;
+  cursor: pointer;
   transition: transform 0.22s var(--ease-fluid), border-color 0.22s ease, box-shadow 0.22s ease;
 }
 
-.status-grid article:hover {
-  transform: translateY(-3px);
+.status-grid button:hover {
+  transform: translateY(-1px);
   border-color: rgba(214, 179, 90, 0.34);
-  box-shadow: 0 20px 54px rgba(0, 0, 0, 0.46), 0 0 18px rgba(214, 179, 90, 0.055);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.34), 0 0 10px rgba(214, 179, 90, 0.032);
 }
 
-.status-grid article,
+.status-grid button:focus-visible,
+.command-grid .panel-button:focus-visible,
+.quick-actions button:focus-visible {
+  position: relative;
+  z-index: 2;
+}
+
 .actionable-panel {
   cursor: pointer;
 }
 
-.threat-sparkline {
-  width: 100%;
-  height: 54px;
-  margin-top: 12px;
-  overflow: visible;
-}
-.threat-sparkline polyline { fill: none; stroke: rgba(214,179,90,.7); stroke-width: 2; vector-effect: non-scaling-stroke; filter: drop-shadow(0 0 5px rgba(214,179,90,.35)); }
-
 .status-grid h2 {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 
   color: var(--muted);
-  font-size: 0.9rem;
-  letter-spacing: 2px;
+  font-size: 0.72rem;
+  letter-spacing: 1.5px;
 }
 
 .status-grid strong {
+  display: block;
+  overflow-wrap: anywhere;
   color: var(--signal);
-  font-size: 2rem;
-  text-shadow: 0 0 18px rgba(214, 179, 90, 0.16);
+  font-size: 1.34rem;
+  text-shadow: 0 0 10px rgba(214, 179, 90, 0.1);
+}
+
+.status-grid button > span {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted-strong);
+  font-size: 0.72rem;
+  line-height: 1.35;
 }
 
 .command-grid {
   display: grid;
-  grid-template-columns: 1.1fr 1fr;
+  grid-template-columns: minmax(280px, 1.08fr) minmax(320px, 0.92fr);
+  grid-template-areas:
+    "priority threat"
+    "target threat"
+    "feed feed";
   gap: 20px;
 }
 
-.command-grid article {
+.command-grid article,
+.command-grid .panel-button {
   position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
   overflow: hidden;
   border: 1px solid var(--panel-border);
   background:
-    linear-gradient(135deg, rgba(214, 179, 90, 0.038), transparent),
+    linear-gradient(135deg, rgba(214, 179, 90, 0.024), transparent),
     var(--panel-soft);
-  box-shadow: 0 18px 58px rgba(0, 0, 0, 0.36);
+  color: inherit;
+  text-align: left;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.32);
   animation: panelRise 0.58s var(--ease-snap) both;
   transition: transform 0.22s var(--ease-fluid), border-color 0.22s ease, box-shadow 0.22s ease;
 }
 
-.command-grid article:hover {
-  transform: translateY(-3px);
+.command-grid article:hover,
+.command-grid .panel-button:hover:not(:disabled) {
+  transform: translateY(-2px);
   border-color: rgba(214, 179, 90, 0.28);
-  box-shadow: 0 22px 62px rgba(0, 0, 0, 0.46), 0 0 18px rgba(214, 179, 90, 0.045);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.4), 0 0 12px rgba(214, 179, 90, 0.035);
+}
+
+.command-grid .panel-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
 }
 
 .threat-panel,
@@ -456,7 +496,29 @@
 }
 
 .threat-panel {
-  grid-column: span 2;
+  grid-area: threat;
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  min-height: 100%;
+}
+
+.priority-panel {
+  grid-area: priority;
+  min-height: 220px;
+  border-color: rgba(214, 179, 90, 0.36);
+  background:
+    linear-gradient(135deg, rgba(214, 179, 90, 0.05), transparent 68%),
+    var(--panel);
+  box-shadow: 0 22px 62px rgba(0, 0, 0, 0.44), 0 0 16px rgba(214, 179, 90, 0.04);
+}
+
+.priority-target-panel {
+  grid-area: target;
+}
+
+.feed-panel {
+  grid-area: feed;
 }
 
 .threat-panel > div:first-child {
@@ -464,7 +526,6 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 18px;
-  margin-bottom: 18px;
 }
 
 .threat-panel h2,
@@ -484,9 +545,14 @@
   font-size: clamp(1.4rem, 3vw, 2.4rem);
 }
 
+.priority-panel strong {
+  max-width: 18ch;
+  font-size: clamp(1.7rem, 3.2vw, 2.75rem);
+  line-height: 1.08;
+}
+
 .threat-panel p,
 .priority-panel p {
-  margin-top: 14px;
   color: var(--muted);
   line-height: 1.6;
 }
@@ -500,10 +566,38 @@
 
 .threat-meter div {
   height: 100%;
-  background: linear-gradient(90deg, #668a5b, var(--signal), #9b4d3e);
-  box-shadow: 0 0 18px rgba(214, 179, 90, 0.24);
-  background-size: 180% 100%;
-  animation: barFlow 1.8s linear infinite;
+  background: linear-gradient(90deg, var(--success), var(--signal), var(--danger));
+  box-shadow: 0 0 10px rgba(214, 179, 90, 0.16);
+}
+
+.threat-breakdown {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.threat-breakdown span {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(214, 179, 90, 0.12);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.threat-breakdown small {
+  display: block;
+  margin-bottom: 8px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.66rem;
+  letter-spacing: 1.2px;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.threat-breakdown strong {
+  font-size: clamp(1rem, 1.7vw, 1.35rem);
+  line-height: 1.1;
 }
 
 .priority-panel span {
@@ -511,6 +605,7 @@
   margin-top: 8px;
   color: var(--muted);
   letter-spacing: 1px;
+  overflow-wrap: anywhere;
 }
 
 .feed-panel ul {
@@ -520,7 +615,7 @@
 .feed-panel li {
   position: relative;
   padding: 12px 0 12px 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  border-bottom: 1px solid var(--panel-border);
   color: var(--muted-strong);
   line-height: 1.5;
 }
@@ -534,8 +629,7 @@
   height: 6px;
   border-radius: 50%;
   background: var(--signal);
-  box-shadow: 0 0 12px rgba(214, 179, 90, 0.34);
-  animation: feedDot 2.4s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(214, 179, 90, 0.24);
 }
 
 .priority-target-panel p {
@@ -566,9 +660,9 @@
   border: 1px solid rgba(163, 58, 50, 0.34);
   background:
     radial-gradient(circle at 50% 42%, rgba(163, 58, 50, 0.18), transparent 38%),
-    linear-gradient(135deg, rgba(214, 179, 90, 0.07), transparent 54%),
+    linear-gradient(135deg, rgba(214, 179, 90, 0.045), transparent 54%),
     rgba(5, 5, 5, 0.72);
-  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.38);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.32);
 }
 
 .target-sigil::before,
@@ -586,7 +680,6 @@
   background:
     linear-gradient(to top, rgba(12, 14, 17, 0.95), transparent 62%),
     repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.024), rgba(255, 255, 255, 0.024) 1px, transparent 1px, transparent 7px);
-  animation: targetSigilScan 4.6s linear infinite;
 }
 
 .target-sigil .interface-icon {
@@ -595,7 +688,7 @@
   width: 70px;
   height: 70px;
   color: rgba(214, 179, 90, 0.16);
-  filter: drop-shadow(0 0 16px rgba(214, 179, 90, 0.14));
+  filter: drop-shadow(0 0 10px rgba(214, 179, 90, 0.1));
 }
 
 .target-sigil span {
@@ -608,11 +701,11 @@
   margin: 0;
   padding: 0;
   border: 1px solid rgba(163, 58, 50, 0.36);
-  color: #c46a60;
+  color: #df8a81;
   background: rgba(163, 58, 50, 0.1);
   font-size: 1.35rem;
   letter-spacing: 2px;
-  text-shadow: 0 0 16px rgba(163, 58, 50, 0.3);
+  text-shadow: 0 0 10px rgba(163, 58, 50, 0.18);
 }
 
 .target-file strong {
@@ -629,7 +722,7 @@
   margin-bottom: 12px;
   padding: 5px 8px;
   border: 1px solid rgba(163, 58, 50, 0.38);
-  color: #c46a60;
+  color: #df8a81;
   background: rgba(163, 58, 50, 0.08);
   font-size: 0.72rem;
   letter-spacing: 1.5px;
@@ -663,45 +756,43 @@
 
 .target-confidence-bar div {
   height: 100%;
-  background: linear-gradient(90deg, #73322c, #c46a60, var(--signal));
-  box-shadow: 0 0 16px rgba(163, 58, 50, 0.28);
-  background-size: 180% 100%;
-  animation: barFlow 1.8s linear infinite;
+  background: linear-gradient(90deg, #5b1e1a, var(--danger), var(--signal));
+  box-shadow: 0 0 10px rgba(163, 58, 50, 0.2);
 }
 
-.status-grid article:nth-child(2) {
+.status-grid button:nth-child(2) {
   animation-delay: 0.04s;
 }
 
-.status-grid article:nth-child(3) {
+.status-grid button:nth-child(3) {
   animation-delay: 0.08s;
 }
 
-.status-grid article:nth-child(4) {
+.status-grid button:nth-child(4) {
   animation-delay: 0.12s;
 }
 
-.status-grid article:nth-child(5) {
+.status-grid button:nth-child(5) {
   animation-delay: 0.16s;
 }
 
-.status-grid article:nth-child(6) {
+.status-grid button:nth-child(6) {
   animation-delay: 0.2s;
 }
 
-.command-grid article:nth-child(1) {
+.command-grid > *:nth-child(1) {
   animation-delay: 0.1s;
 }
 
-.command-grid article:nth-child(2) {
+.command-grid > *:nth-child(2) {
   animation-delay: 0.15s;
 }
 
-.command-grid article:nth-child(3) {
+.command-grid > *:nth-child(3) {
   animation-delay: 0.2s;
 }
 
-.command-grid article:nth-child(4) {
+.command-grid > *:nth-child(4) {
   animation-delay: 0.25s;
 }
 
@@ -712,10 +803,15 @@
 
   .command-grid {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "priority"
+      "threat"
+      "target"
+      "feed";
   }
 
-  .threat-panel {
-    grid-column: auto;
+  .status-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -735,6 +831,30 @@
 
   .quick-actions {
     grid-template-columns: 1fr;
+  }
+
+  .command-grid,
+  .dashboard-mainframe {
+    gap: 18px;
+  }
+
+  .status-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .status-grid button {
+    min-height: 118px;
+    padding: 14px;
+  }
+
+  .status-grid h2 {
+    font-size: 0.66rem;
+    letter-spacing: 1.1px;
+  }
+
+  .status-grid strong {
+    font-size: 1.15rem;
   }
 
   .radar {
@@ -809,48 +929,6 @@
   }
 }
 
-@keyframes onlinePulse {
-  0%, 100% {
-    box-shadow: inset 0 0 18px rgba(102, 138, 91, 0.035), 0 0 0 rgba(102, 138, 91, 0);
-  }
-
-  50% {
-    box-shadow: inset 0 0 24px rgba(102, 138, 91, 0.08), 0 0 18px rgba(102, 138, 91, 0.11);
-  }
-}
-
-@keyframes feedDot {
-  0%, 100% {
-    opacity: 0.62;
-    transform: scale(0.86);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.18);
-  }
-}
-
-@keyframes barFlow {
-  from {
-    background-position: 0 0;
-  }
-
-  to {
-    background-position: 180% 0;
-  }
-}
-
-@keyframes targetSigilScan {
-  0%, 100% {
-    background-position: 0 0, 0 0;
-  }
-
-  50% {
-    background-position: 0 0, 0 16px;
-  }
-}
-
 @keyframes radarPulse {
   0% {
     opacity: 0;
@@ -864,18 +942,6 @@
   100% {
     opacity: 0;
     transform: translate(-50%, -50%) scale(9.6);
-  }
-}
-
-@keyframes radarNoise {
-  0%, 100% {
-    transform: rotate(0deg) scale(1);
-    opacity: 0.18;
-  }
-
-  50% {
-    transform: rotate(2deg) scale(1.015);
-    opacity: 0.32;
   }
 }
 
@@ -898,17 +964,5 @@
   50% {
     opacity: 1;
     transform: scale(1.18);
-  }
-}
-
-@keyframes contactRing {
-  from {
-    opacity: 0.45;
-    transform: scale(0.4);
-  }
-
-  to {
-    opacity: 0;
-    transform: scale(2.2);
   }
 }
