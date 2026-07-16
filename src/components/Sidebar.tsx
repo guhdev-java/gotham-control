@@ -103,7 +103,7 @@ export function Sidebar({
       window.cancelAnimationFrame(animationFrame);
       document.removeEventListener("keydown", handleKeyDown);
       mobileQuery.removeEventListener("change", handleViewportChange);
-      if (mobileQuery.matches) window.requestAnimationFrame(() => menuButtonRef.current?.focus());
+      if (mobileQuery.matches) window.requestAnimationFrame(() => menuButton?.focus());
     };
   }, [mobileOpen, onMobileOpenChange]);
 
