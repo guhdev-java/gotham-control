@@ -45,6 +45,13 @@ function createMarkerIcon(type: "district" | "mission" | "villain", label: strin
   });
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- exported for the tooltip security regression test
+export function createTooltipContent(label: string) {
+  const content = document.createElement("span");
+  content.textContent = label;
+  return content;
+}
+
 export function LeafletNocturneMap({
   imageUrl,
   districts,
@@ -157,7 +164,7 @@ export function LeafletNocturneMap({
         icon: createMarkerIcon("mission", mission.title),
       });
 
-      marker.bindTooltip(`${mission.title} / ${mission.riskLevel}% risk`, {
+      marker.bindTooltip(createTooltipContent(`${mission.title} / ${mission.riskLevel}% risk`), {
         direction: "top",
         className: "nocturne-map-tooltip",
       });
@@ -171,7 +178,7 @@ export function LeafletNocturneMap({
         icon: createMarkerIcon("villain", villain.name),
       });
 
-      marker.bindTooltip(`${villain.name} / ${villain.dangerLevel}`, {
+      marker.bindTooltip(createTooltipContent(`${villain.name} / ${villain.dangerLevel}`), {
         direction: "top",
         className: "nocturne-map-tooltip",
       });

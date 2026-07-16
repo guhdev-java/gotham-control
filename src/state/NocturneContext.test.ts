@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { evaluateMissionPlan } from "../domain/missionPlanning.ts";
 import {
+  createSaveState,
   initialState,
   migrateState,
   nocturneReducer,
@@ -104,6 +105,42 @@ describe("Nocturne state", () => {
     expect(migrateState({ ...initialState, gadgets: [{ ...initialState.gadgets[0], status: "BROKEN" }] })).toBeNull();
   });
 
+  it("validates every imported record and its nested references", () => {
+    const invalidStates = [
+      { ...initialState, villains: [{ ...initialState.villains[0], knownAssociates: [42] }] },
+      { ...initialState, missions: [{ ...initialState.missions[0], assignedUnit: null }] },
+      { ...initialState, gadgets: [{ ...initialState.gadgets[0], description: 7 }] },
+      { ...initialState, missionPlans: [{ missionId: 1, strategy: "STEALTH", gadgetIds: [999], unit: "Unit A", preparedAt: "22:00" }] },
+      { ...initialState, achievements: [{ id: "unknown", title: "Unknown", description: "Invalid", unlockedAt: "22:00" }] },
+      {
+        ...initialState,
+        watchReports: [{
+          id: "1-1-test",
+          timestamp: "22:00",
+          night: 1,
+          turn: 1,
+          stabilityBefore: 50,
+          stabilityAfter: 55,
+          intelBefore: 20,
+          intelAfter: 30,
+          outcomes: [{
+            missionId: 999,
+            title: "Unknown mission",
+            strategy: "UNPLANNED",
+            progressBefore: 0,
+            progressAfter: 4,
+            riskBefore: 50,
+            riskAfter: 57,
+            completed: false,
+          }],
+          gadgetsDrained: [],
+        }],
+      },
+    ];
+
+    invalidStates.forEach((state) => expect(migrateState(state)).toBeNull());
+  });
+
   it("applies distinct campaign consequences for direct and stealth protocols", () => {
     const direct = nocturneReducer(nocturneReducer(initialState, { type: "PLAN_MISSION", missionId: 2, strategy: "DIRECT", gadgetIds: [], unit: "Unit A", timestamp: "22:16:00" }), { type: "ADVANCE_CAMPAIGN", timestamp: "22:17:00" });
     const stealth = nocturneReducer(nocturneReducer(initialState, { type: "PLAN_MISSION", missionId: 2, strategy: "STEALTH", gadgetIds: [], unit: "Unit A", timestamp: "22:16:00" }), { type: "ADVANCE_CAMPAIGN", timestamp: "22:17:00" });
@@ -136,5 +173,22 @@ describe("Nocturne state", () => {
     expect(advanced.missionPlans).toHaveLength(0);
     expect(advanced.logs[0].type).toBe("CAMPAIGN");
     expect(advanced.logs[0].message).toContain(`intelligence ${advanced.campaign.intel}%`);
+  });
+
+  it("preserves watch reports through a save round-trip", () => {
+    const planned = nocturneReducer(initialState, {
+      type: "PLAN_MISSION",
+      missionId: 1,
+      strategy: "SURVEILLANCE",
+      gadgetIds: [3],
+      unit: "Night Watch",
+      timestamp: "22:20:00",
+    });
+    const advanced = nocturneReducer(planned, { type: "ADVANCE_CAMPAIGN", timestamp: "22:21:00" });
+    const exported = JSON.parse(JSON.stringify(createSaveState(advanced)));
+    const restored = migrateState(exported);
+
+    expect(restored?.watchReports).toEqual(advanced.watchReports);
+    expect(restored?.watchReports).toHaveLength(1);
   });
 });

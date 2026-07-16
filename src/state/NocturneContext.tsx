@@ -16,6 +16,14 @@ import type { NocturneAction, NocturneState } from "./nocturneContext.ts";
 const STORAGE_KEY = "nocturne-control-state";
 export const SCHEMA_VERSION = 4;
 const MAX_LOGS = 500;
+const MAX_VILLAINS = 500;
+const MAX_MISSIONS = 1_000;
+const MAX_GADGETS = 500;
+const MAX_WATCH_REPORTS = 20;
+const MAX_SHORT_TEXT = 200;
+const MAX_LONG_TEXT = 5_000;
+const MAX_ASSOCIATES = 100;
+const MAX_CAMPAIGN_NIGHT = 1_000_000;
 
 const defaultCampaign: CampaignState = { night: 1, turn: 1, intel: 24, cityStability: 58 };
 
@@ -65,73 +73,176 @@ function unlockAchievement(state: NocturneState, achievement: Achievement, times
   };
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
+function isText(value: unknown, maxLength: number, allowEmpty = false): value is string {
+  return typeof value === "string" && value.length <= maxLength && (allowEmpty || value.trim().length > 0);
+}
+
+function isInteger(value: unknown, min: number, max = Number.MAX_SAFE_INTEGER): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= min && value <= max;
+}
+
+function isFiniteRange(value: unknown, min: number, max: number): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= min && value <= max;
+}
+
+function isOneOf(value: unknown, choices: readonly string[]): value is string {
+  return typeof value === "string" && choices.includes(value);
+}
+
+function isUnique(values: readonly unknown[]) {
+  return new Set(values).size === values.length;
+}
+
+function isTextArray(value: unknown, maxItems: number) {
+  return Array.isArray(value) && value.length <= maxItems && value.every((item) => isText(item, MAX_SHORT_TEXT));
+}
+
+function isReferenceArray(value: unknown, availableIds: Set<number>, maxItems: number) {
+  return Array.isArray(value) && value.length <= maxItems && isUnique(value) &&
+    value.every((id) => isInteger(id, 1) && availableIds.has(id));
+}
+
 export function isNocturneState(value: unknown): value is NocturneState {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
+  if (!isRecord(value)) return false;
 
-  const state = value as Partial<NocturneState>;
-  const hasNumberId = (item: unknown) =>
-    Boolean(item && typeof item === "object" && typeof (item as { id?: unknown }).id === "number");
-  const isFiniteRange = (value: unknown, min: number, max: number) =>
-    typeof value === "number" && Number.isFinite(value) && value >= min && value <= max;
-  const hasNamedRecord = (item: unknown) => hasNumberId(item) &&
-    typeof (item as { name?: unknown }).name === "string" &&
-    typeof (item as { status?: unknown }).status === "string";
-  const hasMissionRecord = (item: unknown) => hasNumberId(item) &&
-    typeof (item as { title?: unknown }).title === "string" &&
-    typeof (item as { district?: unknown }).district === "string" &&
-    ["ACTIVE", "WAITING", "COMPLETED"].includes(String((item as { status?: unknown }).status)) &&
-    ["LOW", "NORMAL", "HIGH", "CRITICAL"].includes(String((item as { priority?: unknown }).priority)) &&
-    isFiniteRange((item as { progress?: unknown }).progress, 0, 100) &&
-    isFiniteRange((item as { riskLevel?: unknown }).riskLevel, 0, 100) &&
-    Array.isArray((item as { villainIds?: unknown }).villainIds) &&
-    Array.isArray((item as { recommendedGadgetIds?: unknown }).recommendedGadgetIds);
-  const hasLogRecord = (item: unknown) => hasNumberId(item) &&
-    typeof (item as { timestamp?: unknown }).timestamp === "string" &&
-    ["CAPTURE", "DEPLOY", "MISSION", "SYSTEM", "OPERATOR", "PLAN", "CAMPAIGN", "ACHIEVEMENT"].includes(String((item as { type?: unknown }).type)) &&
-    typeof (item as { message?: unknown }).message === "string";
-  const campaign = state.campaign;
-  const villainIds = Array.isArray(state.villains) ? state.villains.map((item) => item.id) : [];
-  const missionIds = Array.isArray(state.missions) ? state.missions.map((item) => item.id) : [];
-  const gadgetIds = Array.isArray(state.gadgets) ? state.gadgets.map((item) => item.id) : [];
-  const allUnique = (ids: number[]) => new Set(ids).size === ids.length;
+  const villains = value.villains;
+  const missions = value.missions;
+  const gadgets = value.gadgets;
+  const logs = value.logs;
+  const campaign = value.campaign;
+  const missionPlans = value.missionPlans;
+  const achievements = value.achievements;
+  const watchReports = value.watchReports;
 
-  return (
-    state.schemaVersion === SCHEMA_VERSION &&
-    typeof state.operatorName === "string" &&
-    Array.isArray(state.villains) &&
-    state.villains.length > 0 &&
-    state.villains.every(hasNamedRecord) &&
-    state.villains.every((item) => ["CAPTURED", "ESCAPED", "UNKNOWN"].includes(item.status)) &&
-    allUnique(villainIds) &&
-    Array.isArray(state.missions) &&
-    state.missions.length > 0 &&
-    state.missions.every(hasMissionRecord) &&
-    state.missions.every((mission) => mission.villainIds.every((id) => villainIds.includes(id)) && mission.recommendedGadgetIds.every((id) => gadgetIds.includes(id))) &&
-    allUnique(missionIds) &&
-    Array.isArray(state.gadgets) &&
-    state.gadgets.length > 0 &&
-    state.gadgets.every(hasNamedRecord) &&
-    state.gadgets.every((item) => ["AVAILABLE", "MAINTENANCE", "DEPLOYED"].includes(item.status) && isFiniteRange(item.powerLevel, 0, 100)) &&
-    allUnique(gadgetIds) &&
-    Array.isArray(state.logs) &&
-    state.logs.length <= MAX_LOGS &&
-    state.logs.every(hasLogRecord) &&
-    Boolean(campaign && Number.isInteger(campaign.night) && campaign.night >= 1 &&
-      Number.isInteger(campaign.turn) && campaign.turn >= 1 && campaign.turn <= 3 &&
-      isFiniteRange(campaign.intel, 0, 100) && isFiniteRange(campaign.cityStability, 0, 100)) &&
-    Array.isArray(state.missionPlans) &&
-    state.missionPlans.every((plan) => typeof plan.missionId === "number" && ["STEALTH", "DIRECT", "SURVEILLANCE"].includes(plan.strategy) &&
-      missionIds.includes(plan.missionId) && Array.isArray(plan.gadgetIds) && plan.gadgetIds.every((id) => gadgetIds.includes(id)) &&
-      typeof plan.unit === "string" && typeof plan.preparedAt === "string") &&
-    Array.isArray(state.achievements) && state.achievements.every((achievement) =>
-      ["first-plan", "first-capture", "first-resolution", "night-two"].includes(achievement.id) &&
-      typeof achievement.title === "string" && typeof achievement.description === "string" && typeof achievement.unlockedAt === "string") &&
-    Array.isArray(state.watchReports) && state.watchReports.length <= 20 &&
-    state.watchReports.every((report) => typeof report.id === "string" && typeof report.timestamp === "string" &&
-      Number.isInteger(report.night) && Number.isInteger(report.turn) && Array.isArray(report.outcomes) && Array.isArray(report.gadgetsDrained))
-  );
+  if (
+    value.schemaVersion !== SCHEMA_VERSION ||
+    !isText(value.operatorName, 32, true) ||
+    !Array.isArray(villains) || villains.length === 0 || villains.length > MAX_VILLAINS ||
+    !Array.isArray(missions) || missions.length === 0 || missions.length > MAX_MISSIONS ||
+    !Array.isArray(gadgets) || gadgets.length === 0 || gadgets.length > MAX_GADGETS ||
+    !Array.isArray(logs) || logs.length > MAX_LOGS ||
+    !Array.isArray(missionPlans) || missionPlans.length > missions.length ||
+    !Array.isArray(achievements) || achievements.length > 4 ||
+    !Array.isArray(watchReports) || watchReports.length > MAX_WATCH_REPORTS ||
+    !isRecord(campaign)
+  ) return false;
+
+  const villainIds = villains.map((item) => isRecord(item) ? item.id : undefined);
+  const missionIds = missions.map((item) => isRecord(item) ? item.id : undefined);
+  const gadgetIds = gadgets.map((item) => isRecord(item) ? item.id : undefined);
+  if (
+    !villainIds.every((id) => isInteger(id, 1)) || !isUnique(villainIds) ||
+    !missionIds.every((id) => isInteger(id, 1)) || !isUnique(missionIds) ||
+    !gadgetIds.every((id) => isInteger(id, 1)) || !isUnique(gadgetIds)
+  ) return false;
+
+  const availableVillainIds = new Set(villainIds as number[]);
+  const availableMissionIds = new Set(missionIds as number[]);
+  const availableGadgetIds = new Set(gadgetIds as number[]);
+  const validVillains = villains.every((item) => isRecord(item) &&
+    isInteger(item.id, 1) &&
+    isText(item.name, MAX_SHORT_TEXT) &&
+    isText(item.alias, MAX_SHORT_TEXT) &&
+    isOneOf(item.dangerLevel, ["LOW", "MEDIUM", "HIGH", "EXTREME"]) &&
+    isOneOf(item.status, ["CAPTURED", "ESCAPED", "UNKNOWN"]) &&
+    isText(item.lastLocation, MAX_SHORT_TEXT) &&
+    isText(item.firstSeen, MAX_SHORT_TEXT) &&
+    isTextArray(item.knownAssociates, MAX_ASSOCIATES) &&
+    isText(item.threatNotes, MAX_LONG_TEXT) &&
+    isText(item.description, MAX_LONG_TEXT));
+  const validGadgets = gadgets.every((item) => isRecord(item) &&
+    isInteger(item.id, 1) &&
+    isText(item.name, MAX_SHORT_TEXT) &&
+    isText(item.category, MAX_SHORT_TEXT) &&
+    isOneOf(item.status, ["AVAILABLE", "MAINTENANCE", "DEPLOYED"]) &&
+    isFiniteRange(item.powerLevel, 0, 100) &&
+    isText(item.lastMaintenance, MAX_SHORT_TEXT) &&
+    isText(item.deploymentHistory, MAX_LONG_TEXT) &&
+    isText(item.description, MAX_LONG_TEXT));
+  const validMissions = missions.every((item) => isRecord(item) &&
+    isInteger(item.id, 1) &&
+    isText(item.title, MAX_SHORT_TEXT) &&
+    isText(item.district, MAX_SHORT_TEXT) &&
+    isOneOf(item.priority, ["LOW", "NORMAL", "HIGH", "CRITICAL"]) &&
+    isOneOf(item.status, ["ACTIVE", "WAITING", "COMPLETED"]) &&
+    isFiniteRange(item.progress, 0, 100) &&
+    isText(item.assignedUnit, MAX_SHORT_TEXT) &&
+    isText(item.eta, MAX_SHORT_TEXT) &&
+    isFiniteRange(item.riskLevel, 0, 100) &&
+    isText(item.description, MAX_LONG_TEXT) &&
+    isReferenceArray(item.villainIds, availableVillainIds, villains.length) &&
+    isReferenceArray(item.recommendedGadgetIds, availableGadgetIds, gadgets.length));
+  const validLogs = logs.every((item) => isRecord(item) &&
+    isInteger(item.id, 0) &&
+    isText(item.timestamp, MAX_SHORT_TEXT) &&
+    isOneOf(item.type, ["CAPTURE", "DEPLOY", "MISSION", "SYSTEM", "OPERATOR", "PLAN", "CAMPAIGN", "ACHIEVEMENT"]) &&
+    isText(item.message, MAX_LONG_TEXT));
+  const validCampaign = isInteger(campaign.night, 1, MAX_CAMPAIGN_NIGHT) &&
+    isInteger(campaign.turn, 1, 3) &&
+    isFiniteRange(campaign.intel, 0, 100) &&
+    isFiniteRange(campaign.cityStability, 0, 100);
+  const validPlans = missionPlans.every((item) => isRecord(item) &&
+    isInteger(item.missionId, 1) && availableMissionIds.has(item.missionId) &&
+    isOneOf(item.strategy, ["STEALTH", "DIRECT", "SURVEILLANCE"]) &&
+    isReferenceArray(item.gadgetIds, availableGadgetIds, gadgets.length) &&
+    isText(item.unit, 48) &&
+    isText(item.preparedAt, MAX_SHORT_TEXT)) &&
+    isUnique(missionPlans.map((item) => isRecord(item) ? item.missionId : undefined));
+  const validAchievements = achievements.every((item) => isRecord(item) &&
+    isOneOf(item.id, ["first-plan", "first-capture", "first-resolution", "night-two"]) &&
+    isText(item.title, MAX_SHORT_TEXT) &&
+    isText(item.description, MAX_LONG_TEXT) &&
+    isText(item.unlockedAt, MAX_SHORT_TEXT)) &&
+    isUnique(achievements.map((item) => isRecord(item) ? item.id : undefined));
+  const validReports = watchReports.every((report) => isRecord(report) &&
+    isText(report.id, MAX_SHORT_TEXT) &&
+    isText(report.timestamp, MAX_SHORT_TEXT) &&
+    isInteger(report.night, 1, MAX_CAMPAIGN_NIGHT) &&
+    isInteger(report.turn, 1, 3) &&
+    isFiniteRange(report.stabilityBefore, 0, 100) &&
+    isFiniteRange(report.stabilityAfter, 0, 100) &&
+    isFiniteRange(report.intelBefore, 0, 100) &&
+    isFiniteRange(report.intelAfter, 0, 100) &&
+    Array.isArray(report.outcomes) && report.outcomes.length <= missions.length &&
+    isUnique(report.outcomes.map((item) => isRecord(item) ? item.missionId : undefined)) &&
+    report.outcomes.every((outcome) => isRecord(outcome) &&
+      isInteger(outcome.missionId, 1) && availableMissionIds.has(outcome.missionId) &&
+      isText(outcome.title, MAX_SHORT_TEXT) &&
+      isOneOf(outcome.strategy, ["STEALTH", "DIRECT", "SURVEILLANCE", "UNPLANNED"]) &&
+      isFiniteRange(outcome.progressBefore, 0, 100) &&
+      isFiniteRange(outcome.progressAfter, 0, 100) &&
+      isFiniteRange(outcome.riskBefore, 0, 100) &&
+      isFiniteRange(outcome.riskAfter, 0, 100) &&
+      typeof outcome.completed === "boolean") &&
+    Array.isArray(report.gadgetsDrained) && report.gadgetsDrained.length <= gadgets.length &&
+    isUnique(report.gadgetsDrained.map((item) => isRecord(item) ? item.gadgetId : undefined)) &&
+    report.gadgetsDrained.every((drain) => isRecord(drain) &&
+      isInteger(drain.gadgetId, 1) && availableGadgetIds.has(drain.gadgetId) &&
+      isText(drain.name, MAX_SHORT_TEXT) &&
+      isFiniteRange(drain.powerSpent, 0, 100))) &&
+    isUnique(watchReports.map((item) => isRecord(item) ? item.id : undefined));
+
+  return validVillains && validMissions && validGadgets && validLogs && validCampaign &&
+    validPlans && validAchievements && validReports;
+}
+
+export function createSaveState(state: NocturneState): NocturneState {
+  return {
+    schemaVersion: state.schemaVersion,
+    operatorName: state.operatorName,
+    villains: state.villains,
+    missions: state.missions,
+    gadgets: state.gadgets,
+    logs: state.logs,
+    campaign: state.campaign,
+    missionPlans: state.missionPlans,
+    achievements: state.achievements,
+    watchReports: state.watchReports,
+  };
 }
 
 export function migrateState(value: unknown): NocturneState | null {

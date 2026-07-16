@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { useNocturne } from "../state/useNocturne.ts";
+import { createSaveState } from "../state/NocturneContext.tsx";
 import type { EventLog } from "../types";
 
 import "../styles/logs.css";
@@ -13,17 +14,7 @@ export function Logs() {
   const visibleLogs = filter === "ALL" ? logs : logs.filter((log) => log.type === filter);
 
   function exportState() {
-    const serializableState = {
-      schemaVersion: state.schemaVersion,
-      operatorName: state.operatorName,
-      villains: state.villains,
-      missions: state.missions,
-      gadgets: state.gadgets,
-      logs: state.logs,
-      campaign: state.campaign,
-      missionPlans: state.missionPlans,
-      achievements: state.achievements,
-    };
+    const serializableState = createSaveState(state);
     const blob = new Blob([JSON.stringify(serializableState, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
