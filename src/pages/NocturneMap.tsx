@@ -92,6 +92,8 @@ export function NocturneMap({ onOpenVillain, onOpenMissions }: NocturneMapProps)
     () => villains.filter((villain) => villain.status === "ESCAPED"),
     [villains]
   );
+  const visibleMissionPins = showMissions ? activeMissionPins : [];
+  const visibleVillainPins = showTargets ? escapedVillainPins : [];
   const districtRisk = districtOpenMissions.length
     ? Math.round(districtOpenMissions.reduce((total, mission) => total + mission.riskLevel, 0) / districtOpenMissions.length)
     : 0;
@@ -122,8 +124,8 @@ export function NocturneMap({ onOpenVillain, onOpenMissions }: NocturneMapProps)
             imageUrl={asset("/maps/nocturne-custom-map.svg")}
             districts={districts}
             activeDistrictId={activeDistrict.id}
-            activeMissionPins={showMissions ? activeMissionPins : []}
-            escapedVillainPins={showTargets ? escapedVillainPins : []}
+            activeMissionPins={visibleMissionPins}
+            escapedVillainPins={visibleVillainPins}
             getDistrictForValue={getDistrictForValue}
             onSelectDistrict={setActiveDistrictId}
             onOpenVillain={onOpenVillain}
@@ -147,8 +149,12 @@ export function NocturneMap({ onOpenVillain, onOpenMissions }: NocturneMapProps)
           <section className="sr-only" aria-label="Map signal summary">
             <h2>Map signals</h2>
             <ul>
-              {activeMissionPins.map((mission) => <li key={`mission-${mission.id}`}>Active mission: {mission.title}, {mission.district}, risk {mission.riskLevel}%.</li>)}
-              {escapedVillainPins.map((villain) => <li key={`target-${villain.id}`}>Escaped target: {villain.name}, last signal {villain.lastLocation}.</li>)}
+              {!showMissions && <li>Mission signals are hidden.</li>}
+              {showMissions && visibleMissionPins.length === 0 && <li>No active mission signals.</li>}
+              {visibleMissionPins.map((mission) => <li key={`mission-${mission.id}`}>Active mission: {mission.title}, {mission.district}, risk {mission.riskLevel}%.</li>)}
+              {!showTargets && <li>Target signals are hidden.</li>}
+              {showTargets && visibleVillainPins.length === 0 && <li>No escaped target signals.</li>}
+              {visibleVillainPins.map((villain) => <li key={`target-${villain.id}`}>Escaped target: {villain.name}, last signal {villain.lastLocation}.</li>)}
             </ul>
           </section>
         </div>

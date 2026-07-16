@@ -15,3 +15,5 @@ Decisões, arquitetura e informações aprendidas pelo agente.
 {"type":"suggestion-decision","title":"Unificar previsão e execução das regras de missão","status":"applied","recordedAt":"2026-07-16T01:36:42.175Z"}
 {"type":"suggestion-decision","title":"Implementar comportamento modal acessível no drawer móvel","status":"accepted","recordedAt":"2026-07-16T01:37:21.762Z"}
 {"type":"suggestion-decision","title":"Implementar comportamento modal acessível no drawer móvel","status":"applied","recordedAt":"2026-07-16T01:41:08.870Z"}
+{"type":"suggestion-decision","title":"Sincronizar filtros visuais e resumo acessível do mapa","status":"accepted","recordedAt":"2026-07-16T01:41:40.264Z"}
+{"type":"suggestion-decision","title":"Sincronizar filtros visuais e resumo acessível do mapa","status":"applied","recordedAt":"2026-07-16T01:42:24.590Z"}
